@@ -7,9 +7,12 @@ use axum::{
 };
 use reqwest::StatusCode;
 
-use crate::neis::{
-    meal::{MealData, MealType},
-    NeisClient,
+use crate::{
+    neis::{
+        meal::{MealData, MealType},
+        NeisClient,
+    },
+    AppResponse,
 };
 
 pub(crate) async fn meal(Query(params): Query<MealQuery>) -> Response {
@@ -24,10 +27,18 @@ pub(crate) async fn meal(Query(params): Query<MealQuery>) -> Response {
         .await;
 
     match res {
-        Ok(data) => Json(Meal::from_meal_data(&data)).into_response(),
+        Ok(data) => {
+            let res = match data.result() {
+                Some(meal) => AppResponse::success(Meal::from_meal_data(meal)),
+                None => AppResponse::error(data.status().to_app_response_error()),
+            };
+            Json(res).into_response()
+        }
         Err(err) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Something went wrong: {}", err),
+            Json(AppResponse::<Vec<Meal>>::error_with_message(
+                &err.to_string(),
+            )),
         )
             .into_response(),
     }

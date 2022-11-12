@@ -1,6 +1,6 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
-use super::Response;
+use super::common::{RawResponse, Response};
 
 #[derive(serde::Serialize)]
 pub(super) struct MealRawRequest {
@@ -35,7 +35,7 @@ impl MealRawRequest {
         }
     }
 
-    pub(super) async fn send(&self) -> Result<Vec<MealData>> {
+    pub(super) async fn send(&self) -> Result<Response<MealData>> {
         let client = reqwest::Client::new();
         let res = client
             .get("https://open.neis.go.kr/hub/mealServiceDietInfo")
@@ -76,18 +76,15 @@ impl MealType {
 #[derive(serde::Deserialize, Debug)]
 pub(crate) struct MealRawResponse {
     #[serde(rename = "mealServiceDietInfo")]
-    meal: Vec<Response<MealData>>,
+    meal: Vec<RawResponse<MealData>>,
 }
 impl MealRawResponse {
-    fn to_response(mut self) -> Result<Vec<MealData>> {
-        match self.meal.pop() {
-            Some(Response::Row(row)) => Ok(row),
-            _ => Err(anyhow!("response error")),
-        }
+    fn to_response(&self) -> Result<Response<MealData>> {
+        Response::from_raw(&self.meal)
     }
 }
 
-#[derive(serde::Deserialize, Debug)]
+#[derive(serde::Deserialize, Debug, Clone)]
 pub(crate) struct MealData {
     #[serde(rename = "MMEAL_SC_CODE")]
     meal_type_code: String, // 식사코드
