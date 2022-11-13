@@ -5,6 +5,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use chrono::Utc;
 use reqwest::StatusCode;
 
 use crate::{
@@ -17,12 +18,18 @@ use crate::{
 
 pub(crate) async fn meal(Query(params): Query<MealQuery>) -> Response {
     let neis_client = NeisClient::new(&env::var("API_KEY").expect("API_KEY env missing"));
+
+    let date = match params.date {
+        Some(date) => date,
+        None => Utc::now().naive_local().format("%Y%m%d").to_string(),
+    };
+
     let res = neis_client
         .meal(
             &params.region_code,
             &params.school_code,
             &params.meal_type.unwrap_or(MealType::All),
-            &params.date,
+            &date,
         )
         .await;
 
@@ -48,7 +55,7 @@ pub(crate) async fn meal(Query(params): Query<MealQuery>) -> Response {
 pub(crate) struct MealQuery {
     region_code: String,
     school_code: String,
-    date: String,
+    date: Option<String>,
     meal_type: Option<MealType>,
 }
 

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::{Utc, Datelike, Weekday, Duration};
 
 use super::common::{RawResponseContent, Response};
 
@@ -16,8 +17,6 @@ pub(super) struct TimeTableRawRequest {
     school_code: String, // 표준학교코드
     #[serde(rename = "AY")]
     year: String,
-    #[serde(rename = "SEM")]
-    semester: String,
     #[serde(rename = "GRADE")]
     grade: String,
     #[serde(rename = "TI_FROM_YMD")]
@@ -27,17 +26,23 @@ pub(super) struct TimeTableRawRequest {
 }
 impl TimeTableRawRequest {
     pub(super) fn new(key: &str, region_code: &str, school_code: &str, grade: u8) -> Self {
+        let date = Utc::now().date_naive();
+        let week = date.week(Weekday::Mon);
+        let start_date = week.first_day();
+        let end_date = week.last_day() - Duration::days(2);
+
+        println!("{}, {}", start_date, end_date);
+
         TimeTableRawRequest {
             key: key.to_string(),
             res_type: "json".to_string(),
             p_size: 1000,
             region_code: region_code.to_string(),
             school_code: school_code.to_string(),
-            year: "2022".to_string(), //TODO: current date
-            semester: "2".to_string(),
+            year: date.year().to_string(),
             grade: grade.to_string(),
-            date_start: "20221107".to_string(),
-            date_end: "20221111".to_string(),
+            date_start: start_date.format("%Y%m%d").to_string(),
+            date_end: end_date.format("%Y%m%d").to_string(),
         }
     }
 
