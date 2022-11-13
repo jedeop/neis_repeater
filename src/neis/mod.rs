@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::NaiveDate;
 
 use self::{
     common::Response,
@@ -36,8 +37,9 @@ impl NeisClient {
         region_code: &str,
         school_code: &str,
         grade: u8,
+        date: Option<NaiveDate>,
     ) -> Result<Response<TimeTableData>> {
-        let res = TimeTableRawRequest::new(&self.key, region_code, school_code, grade)
+        let res = TimeTableRawRequest::new(&self.key, region_code, school_code, grade, date)
             .send()
             .await?;
         Ok(res)

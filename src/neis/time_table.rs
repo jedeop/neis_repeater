@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{Utc, Datelike, Weekday, Duration};
+use chrono::{Datelike, Duration, NaiveDate, Utc, Weekday};
 
 use super::common::{RawResponseContent, Response};
 
@@ -25,8 +25,17 @@ pub(super) struct TimeTableRawRequest {
     date_end: String,
 }
 impl TimeTableRawRequest {
-    pub(super) fn new(key: &str, region_code: &str, school_code: &str, grade: u8) -> Self {
-        let date = Utc::now().date_naive();
+    pub(super) fn new(
+        key: &str,
+        region_code: &str,
+        school_code: &str,
+        grade: u8,
+        date: Option<NaiveDate>,
+    ) -> Self {
+        let date = match date {
+            Some(d) => d,
+            None => Utc::now().date_naive(),
+        };
         let week = date.week(Weekday::Mon);
         let start_date = week.first_day();
         let end_date = week.last_day() - Duration::days(2);
