@@ -3,10 +3,12 @@ use anyhow::Result;
 use self::{
     common::Response,
     meal::{MealData, MealRawRequest, MealType},
+    time_table::{TimeTableData, TimeTableRawRequest},
 };
 
 mod common;
 pub(crate) mod meal;
+pub(crate) mod time_table;
 
 pub(crate) struct NeisClient {
     key: String,
@@ -25,6 +27,17 @@ impl NeisClient {
         date: &str,
     ) -> Result<Response<MealData>> {
         let res = MealRawRequest::new(&self.key, region_code, school_code, meal_type, date)
+            .send()
+            .await?;
+        Ok(res)
+    }
+    pub(crate) async fn time_table(
+        &self,
+        region_code: &str,
+        school_code: &str,
+        grade: u8,
+    ) -> Result<Response<TimeTableData>> {
+        let res = TimeTableRawRequest::new(&self.key, region_code, school_code, grade)
             .send()
             .await?;
         Ok(res)

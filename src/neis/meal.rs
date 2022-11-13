@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use super::common::{RawResponse, Response};
+use super::common::{RawResponseContent, Response};
 
 #[derive(serde::Serialize)]
 pub(super) struct MealRawRequest {
@@ -76,7 +76,7 @@ impl MealType {
 #[derive(serde::Deserialize, Debug)]
 pub(crate) struct MealRawResponse {
     #[serde(rename = "mealServiceDietInfo")]
-    meal: Vec<RawResponse<MealData>>,
+    meal: Vec<RawResponseContent<MealData>>,
 }
 impl MealRawResponse {
     fn to_response(&self) -> Result<Response<MealData>> {

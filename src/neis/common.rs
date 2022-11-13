@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use crate::AppResponseError;
 
 #[derive(serde::Deserialize, Debug)]
-pub(super) enum RawResponse<T> {
+pub(super) enum RawResponseContent<T> {
     #[serde(rename = "head")]
     Head(Vec<HeadElement>),
     #[serde(rename = "row")]
@@ -18,6 +18,7 @@ pub(super) enum HeadElement {
 }
 
 #[derive(serde::Deserialize, Debug)]
+#[allow(dead_code)]
 pub(super) struct Count {
     list_total_count: u64,
 }
@@ -50,8 +51,10 @@ pub(crate) struct Response<T> {
 }
 
 impl<T: Clone> Response<T> {
-    pub(super) fn from_raw(raw: &[RawResponse<T>]) -> Result<Self> {
-        if let (RawResponse::Head(head), RawResponse::<T>::Row(row)) = (&raw[0], &raw[1]) {
+    pub(super) fn from_raw(raw: &[RawResponseContent<T>]) -> Result<Self> {
+        if let (RawResponseContent::Head(head), RawResponseContent::<T>::Row(row)) =
+            (&raw[0], &raw[1])
+        {
             if let HeadElement::Status(status) = &head[1] {
                 Ok(Response {
                     status: status.result.clone(),
@@ -73,3 +76,18 @@ impl<T: Clone> Response<T> {
         self.result.as_ref()
     }
 }
+
+#[derive(serde::Deserialize)]
+pub(super) enum RawResponseType<T> {
+    Error(Status),
+    Success(T),
+}
+
+// impl<T> RawResponseType<T> {
+//     fn to_response(&self) -> Response<T> {
+//         match self {
+//             RawResponseType::Error(err) => Response { status: err, result: None },
+//             RawResponseType::Success(res) => ,
+//         }
+//     }
+// }

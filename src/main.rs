@@ -1,11 +1,12 @@
 mod meal;
 mod neis;
-mod timetable;
+mod subjects;
+mod time_table;
 
 use axum::{routing::get, Router};
 use dotenv::dotenv;
 use meal::meal;
-use timetable::time_table;
+use time_table::time_table;
 
 #[tokio::main]
 async fn main() {
@@ -13,7 +14,7 @@ async fn main() {
 
     let app = Router::new()
         .route("/meal", get(meal))
-        .route("/timetable", get(time_table));
+        .route("/time_table", get(time_table));
 
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
