@@ -15,7 +15,7 @@ use crate::{
 };
 
 pub(crate) async fn time_table(Query(params): Query<TimeTableQuery>) -> Response {
-    let neis_client = NeisClient::new(&env::var("API_KEY").expect("API_KEY env missing"));
+    let neis_client = NeisClient::new(&env::var("NEIS_API_KEY").expect("NEIS_API_KEY env missing"));
 
     let date = match params.date {
         Some(d) => match NaiveDate::parse_from_str(&d, "%Y%m%d") {

@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub(crate) async fn meal(Query(params): Query<MealQuery>) -> Response {
-    let neis_client = NeisClient::new(&env::var("API_KEY").expect("API_KEY env missing"));
+    let neis_client = NeisClient::new(&env::var("NEIS_API_KEY").expect("NEIS_API_KEY env missing"));
 
     let date = match params.date {
         Some(date) => date,

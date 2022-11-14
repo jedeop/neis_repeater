@@ -3,10 +3,14 @@ mod neis;
 mod subjects;
 mod time_table;
 
+use std::{env, net::SocketAddr};
+
 use axum::{routing::get, Router};
 use dotenv::dotenv;
 use meal::meal;
 use time_table::time_table;
+
+const DEFAULT_PORT: u16 = 3000;
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +20,14 @@ async fn main() {
         .route("/meal", get(meal))
         .route("/time_table", get(time_table));
 
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
+    let port = match env::var("PORT") {
+        Ok(val) => val.parse::<u16>().unwrap_or(DEFAULT_PORT),
+        Err(_) => DEFAULT_PORT,
+    };
+
+    let socket_addr = SocketAddr::from(([0, 0, 0, 0, 0, 0, 0, 0], port));
+    println!("listening on {}", socket_addr);
+    axum::Server::bind(&socket_addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
