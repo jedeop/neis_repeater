@@ -62,6 +62,6 @@ pub(crate) async fn time_table(Query(params): Query<TimeTableQuery>) -> Response
 pub(crate) struct TimeTableQuery {
     region_code: String,
     school_code: String,
-    grade: u8,
+    grade: Option<u8>,
     date: Option<String>,
 }

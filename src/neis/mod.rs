@@ -36,7 +36,7 @@ impl NeisClient {
         &self,
         region_code: &str,
         school_code: &str,
-        grade: u8,
+        grade: Option<u8>,
         date: Option<NaiveDate>,
     ) -> Result<Response<TimeTableData>> {
         let res = TimeTableRawRequest::new(&self.key, region_code, school_code, grade, date)

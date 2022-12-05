@@ -18,7 +18,7 @@ pub(super) struct TimeTableRawRequest {
     #[serde(rename = "AY")]
     year: String,
     #[serde(rename = "GRADE")]
-    grade: String,
+    grade: Option<String>,
     #[serde(rename = "TI_FROM_YMD")]
     date_start: String,
     #[serde(rename = "TI_TO_YMD")]
@@ -29,7 +29,7 @@ impl TimeTableRawRequest {
         key: &str,
         region_code: &str,
         school_code: &str,
-        grade: u8,
+        grade: Option<u8>,
         date: Option<NaiveDate>,
     ) -> Self {
         let date = match date {
@@ -40,7 +40,7 @@ impl TimeTableRawRequest {
         let start_date = week.first_day();
         let end_date = week.last_day() - Duration::days(2);
 
-        println!("{}, {}", start_date, end_date);
+        // println!("{}, {}", start_date, end_date);
 
         TimeTableRawRequest {
             key: key.to_string(),
@@ -49,7 +49,7 @@ impl TimeTableRawRequest {
             region_code: region_code.to_string(),
             school_code: school_code.to_string(),
             year: date.year().to_string(),
-            grade: grade.to_string(),
+            grade: grade.and_then(|g| Some(g.to_string())),
             date_start: start_date.format("%Y%m%d").to_string(),
             date_end: end_date.format("%Y%m%d").to_string(),
         }
